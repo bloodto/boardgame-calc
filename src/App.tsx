@@ -160,7 +160,7 @@ const App: React.FC = () => {
 
   return (
     <div className="p-4 max-w-full mx-auto text-center">
-      <h1 className="text-2xl font-bold mb-4">호텔별 최종 블럭수</h1>
+      <h1 className="text-2xl font-bold mb-4">보드게임 계산기 v0.4 테스트 🚀</h1>
 
       {/* 블럭 입력 */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
