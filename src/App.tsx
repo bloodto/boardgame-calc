@@ -1,5 +1,4 @@
-// src/App.tsx
-import React, { useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import {
   PieChart,
   Pie,
@@ -76,16 +75,6 @@ const HOTEL_LIST: Hotel[] = [
   "타워",
 ];
 
-const hotelColors: Record<Hotel, string> = {
-  콘티넨탈: "#87CEEB",
-  임페리얼: "#FFA500",
-  아메리칸: "#4169E1",
-  페스티발: "#98FB98",
-  월드와이드: "#9370DB",
-  섹슨: "#FF6347",
-  타워: "#FFD700",
-};
-
 function getHotelPrice(hotel: Hotel, blocks: Record<Hotel, number>) {
   const b = blocks[hotel] ?? 0;
   if (hotel === "섹슨" || hotel === "타워") return stockTableSacksonTower[b] || 0;
@@ -96,9 +85,7 @@ function getHotelPrice(hotel: Hotel, blocks: Record<Hotel, number>) {
 
 function calcTotalAsset(p: Player, blocks: Record<Hotel, number>) {
   let total = p.money;
-  for (const h of HOTEL_LIST) {
-    total += (p.stocks[h] || 0) * getHotelPrice(h, blocks);
-  }
+  for (const h of HOTEL_LIST) total += (p.stocks[h] || 0) * getHotelPrice(h, blocks);
   return total;
 }
 
@@ -129,24 +116,23 @@ export default function App() {
     섹슨: 0,
     타워: 0,
   });
-
   const [showModal, setShowModal] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [tempPlayer, setTempPlayer] = useState<Player>(makeEmptyPlayer());
 
-  // 화면용: 항상 최신 계산으로 정렬해서 보여줌 (원본 players 상태는 그대로 둠)
-  const sortedPlayers = useMemo(() => {
-    return [...players].sort((a, b) => calcTotalAsset(b, blockCounts) - calcTotalAsset(a, blockCounts));
-  }, [players, blockCounts]);
+  const sortedPlayers = useMemo(
+    () =>
+      [...players].sort(
+        (a, b) => calcTotalAsset(b, blockCounts) - calcTotalAsset(a, blockCounts)
+      ),
+    [players, blockCounts]
+  );
 
   const leaderId = sortedPlayers.length ? sortedPlayers[0].id : null;
 
-  // 모달 열기 (추가)
   const handleAddPlayer = () => {
     setEditMode(false);
-    setTempPlayer(
-      makeEmptyPlayer(Math.floor(Math.random() * 1_000_000) + Date.now())
-    );
+    setTempPlayer(makeEmptyPlayer());
     setShowModal(true);
   };
 
@@ -157,18 +143,15 @@ export default function App() {
   };
 
   const handleSavePlayer = () => {
-    // 정상 입력 방어: 이름 빈칸이면 막음
     if (!tempPlayer.name.trim()) {
       alert("유저 이름을 입력하세요.");
       return;
     }
-    setPlayers((prev) => {
-      if (editMode) {
-        return prev.map((x) => (x.id === tempPlayer.id ? { ...tempPlayer } : x));
-      } else {
-        return [...prev, { ...tempPlayer }];
-      }
-    });
+    setPlayers((prev) =>
+      editMode
+        ? prev.map((x) => (x.id === tempPlayer.id ? { ...tempPlayer } : x))
+        : [...prev, { ...tempPlayer }]
+    );
     setShowModal(false);
   };
 
@@ -200,7 +183,7 @@ export default function App() {
       월드와이드: 20,
       섹슨: 3,
       타워: 4,
-    } as Record<Hotel, number>;
+    };
     setBlockCounts(blocks);
 
     const testPlayers: Player[] = [
@@ -266,25 +249,55 @@ export default function App() {
       },
     ];
     setPlayers(testPlayers);
-    // 화면 맨위로 스크롤 (UX)
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  // helpers for inputs to allow blank (so backspace works nicely)
   const numberInputValue = (v: number) => (v === 0 ? "" : String(v));
   const parseNum = (s: string) => (s === "" ? 0 : Number(s));
 
   return (
-    <div style={{ padding: 18, maxWidth: 1100, margin: "0 auto", fontFamily: "Inter, Arial, sans-serif" }}>
-      <h1 style={{ fontSize: 22, fontWeight: 700, marginBottom: 12 }}>어콰이어 계산기 v0.6</h1>
+    <div style={{ padding: 18, maxWidth: 1100, margin: "0 auto" }}>
+      <h1
+        style={{
+          fontSize: 22,
+          fontWeight: 700,
+          marginBottom: 12,
+          textAlign: "center",
+        }}
+      >
+        어콰이어 계산기 v0.7
+      </h1>
 
-      {/* 호텔 블록 입력 */}
-      <section style={{ marginBottom: 16 }}>
-        <h2 style={{ fontSize: 16, marginBottom: 8 }}>호텔별 최종 블럭수</h2>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))", gap: 8 }}>
+      {/* 호텔 입력 영역 */}
+      <section
+        style={{
+          marginBottom: 16,
+          border: "1px solid #ddd",
+          borderRadius: 8,
+          padding: 10,
+        }}
+      >
+        <h2 style={{ fontSize: 16, marginBottom: 8 }}>호텔별 최종 블록수</h2>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))",
+            gap: 8,
+          }}
+        >
           {HOTEL_LIST.map((hotel) => (
-            <div key={hotel} style={{ background: "#fff", padding: 8, borderRadius: 8, boxShadow: "0 1px 3px rgba(0,0,0,0.06)" }}>
-              <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 6 }}>{hotel}</div>
+            <div
+              key={hotel}
+              style={{
+                background: "#fff",
+                padding: 8,
+                borderRadius: 8,
+                boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
+              }}
+            >
+              <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 6 }}>
+                {hotel}
+              </div>
               <input
                 inputMode="numeric"
                 pattern="[0-9]*"
@@ -295,62 +308,173 @@ export default function App() {
                     [hotel]: parseNum(e.target.value),
                   })
                 }
-                style={{ width: "100%", padding: "6px 8px", textAlign: "center", borderRadius: 6, border: "1px solid #ddd" }}
-                placeholder=""
+                style={{
+                  width: "100%",
+                  padding: "6px 8px",
+                  textAlign: "center",
+                  borderRadius: 6,
+                  border: "1px solid #ddd",
+                }}
               />
             </div>
           ))}
         </div>
       </section>
 
-      {/* 버튼들 */}
+      {/* 버튼 */}
       <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
-        <button onClick={handleAddPlayer} style={{ background: "#2563eb", color: "#fff", padding: "8px 12px", borderRadius: 8 }}>유저 추가</button>
-        <button onClick={handleReset} style={{ background: "#9ca3af", color: "#fff", padding: "8px 12px", borderRadius: 8 }}>리셋</button>
-        <button onClick={handleTest} style={{ background: "#16a34a", color: "#fff", padding: "8px 12px", borderRadius: 8 }}>테스트</button>
+        <button
+          onClick={handleAddPlayer}
+          style={{
+            background: "#2563eb",
+            color: "#fff",
+            padding: "8px 12px",
+            borderRadius: 8,
+          }}
+        >
+          유저 추가
+        </button>
+        <button
+          onClick={handleReset}
+          style={{
+            background: "#9ca3af",
+            color: "#fff",
+            padding: "8px 12px",
+            borderRadius: 8,
+          }}
+        >
+          리셋
+        </button>
+        <button
+          onClick={handleTest}
+          style={{
+            background: "#16a34a",
+            color: "#fff",
+            padding: "8px 12px",
+            borderRadius: 8,
+          }}
+        >
+          테스트
+        </button>
       </div>
 
-      {/* 유저 카드 (정렬된 표시) */}
+      {/* 유저 카드 */}
       <section style={{ marginBottom: 20 }}>
-        <h2 style={{ fontSize: 16, marginBottom: 8 }}>유저 목록 (총자산 기준 자동 정렬)</h2>
-
+        <h2 style={{ fontSize: 16, marginBottom: 8 }}>
+          유저 목록 (총자산 기준 자동 정렬)
+        </h2>
         {sortedPlayers.length === 0 ? (
-          <div style={{ color: "#6b7280" }}>유저가 없습니다. '유저 추가' 또는 '테스트'를 눌러주세요.</div>
+          <div style={{ color: "#6b7280" }}>
+            유저가 없습니다. ‘유저 추가’ 또는 ‘테스트’를 눌러주세요.
+          </div>
         ) : (
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 12 }}>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
+              gap: 12,
+            }}
+          >
             {sortedPlayers.map((p) => {
               const total = calcTotalAsset(p, blockCounts);
               return (
-                <div key={p.id} style={{
-                  padding: 12,
-                  borderRadius: 10,
-                  background: "#fff",
-                  boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
-                  border: leaderId === p.id ? "2px solid gold" : "1px solid #e5e7eb",
-                  position: "relative"
-                }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <div
+                  key={p.id}
+                  style={{
+                    padding: 12,
+                    borderRadius: 10,
+                    background: "#fff",
+                    boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
+                    border:
+                      leaderId === p.id
+                        ? "2px solid gold"
+                        : "1px solid #e5e7eb",
+                  }}
+                >
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                    }}
+                  >
                     <div>
-                      <div style={{ fontWeight: 700, fontSize: leaderId === p.id ? 18 : 15 }}>{p.name || "무명"}</div>
-                      <div style={{ fontSize: 12, color: "#6b7280" }}>보유금액: {p.money.toLocaleString()}원</div>
+                      <div
+                        style={{
+                          fontWeight: 700,
+                          fontSize: leaderId === p.id ? 18 : 15,
+                        }}
+                      >
+                        {p.name || "무명"}
+                      </div>
+                      <div style={{ fontSize: 12, color: "#6b7280" }}>
+                        보유금액: {p.money.toLocaleString()}원
+                      </div>
                     </div>
-                    <div style={{ width: 36, height: 36, borderRadius: 8, background: p.color }} />
+                    <div
+                      style={{
+                        width: 36,
+                        height: 36,
+                        borderRadius: 8,
+                        background: p.color,
+                      }}
+                    />
                   </div>
-
-                  <div style={{ marginTop: 10, fontWeight: 700 }}>총자산: {total.toLocaleString()}원</div>
-
-                  {/* 주식 목록 요약 (간단) */}
-                  <div style={{ marginTop: 8, display: "flex", gap: 6, flexWrap: "wrap" }}>
-                    {HOTEL_LIST.map(h => (
-                      <div key={h} style={{ fontSize: 12, padding: "4px 6px", background: "#f3f4f6", borderRadius: 6 }}>
+                  <div style={{ marginTop: 10, fontWeight: 700 }}>
+                    총자산: {total.toLocaleString()}원
+                  </div>
+                  <div
+                    style={{
+                      marginTop: 8,
+                      display: "flex",
+                      gap: 6,
+                      flexWrap: "wrap",
+                    }}
+                  >
+                    {HOTEL_LIST.map((h) => (
+                      <div
+                        key={h}
+                        style={{
+                          fontSize: 12,
+                          padding: "4px 6px",
+                          background: "#f3f4f6",
+                          borderRadius: 6,
+                        }}
+                      >
                         {h}: {p.stocks[h] ?? 0}
                       </div>
                     ))}
                   </div>
-
-                  <div style={{ display: "flex", gap: 8, marginTop: 10, justifyContent: "center" }}>
-                    <button onClick={() => handleEditPlayer(p)} style={{ padding: "6px 8px", borderRadius: 6, background: "#10b981", color: "#fff" }}>수정</button>
-                    <button onClick={() => handleDeletePlayer(p.id)} style={{ padding: "6px 8px", borderRadius: 6, background: "#f97316", color: "#fff" }}>삭제</button>
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: 8,
+                      marginTop: 10,
+                      justifyContent: "center",
+                    }}
+                  >
+                    <button
+                      onClick={() => handleEditPlayer(p)}
+                      style={{
+                        padding: "6px 8px",
+                        borderRadius: 6,
+                        background: "#10b981",
+                        color: "#fff",
+                      }}
+                    >
+                      수정
+                    </button>
+                    <button
+                      onClick={() => handleDeletePlayer(p.id)}
+                      style={{
+                        padding: "6px 8px",
+                        borderRadius: 6,
+                        background: "#f97316",
+                        color: "#fff",
+                      }}
+                    >
+                      삭제
+                    </button>
                   </div>
                 </div>
               );
@@ -359,81 +483,190 @@ export default function App() {
         )}
       </section>
 
-      {/* 파이 차트 (유저 자산 비율) */}
+      {/* 파이차트 */}
       {sortedPlayers.length > 0 && (
         <section style={{ height: 320, marginBottom: 20 }}>
           <h2 style={{ fontSize: 16, marginBottom: 8 }}>유저별 자산 비율</h2>
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie
-                data={sortedPlayers.map(p => ({ name: p.name, value: calcTotalAsset(p, blockCounts), color: p.color }))}
+                data={sortedPlayers.map((p) => ({
+                  name: p.name,
+                  value: calcTotalAsset(p, blockCounts),
+                  color: p.color,
+                }))}
                 dataKey="value"
                 nameKey="name"
                 cx="50%"
                 cy="50%"
                 outerRadius={90}
-                label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                label={({ name, percent }: { name: string; percent: number }) =>
+                  `${name} ${(percent * 100).toFixed(0)}%`
+                }
               >
-                {sortedPlayers.map((p, i) => <Cell key={i} fill={p.color} />)}
+                {sortedPlayers.map((p, i) => (
+                  <Cell key={i} fill={p.color} />
+                ))}
               </Pie>
-              <Tooltip formatter={(value: any) => `${Number(value).toLocaleString()}원`} />
+              <Tooltip />
               <Legend />
             </PieChart>
           </ResponsiveContainer>
         </section>
       )}
 
-      {/* 모달: 유저 추가/수정 (주식 입력 포함) */}
+      {/* 모달 */}
       {showModal && (
-        <div style={{
-          position: "fixed", inset: 0, background: "rgba(0,0,0,0.4)",
-          display: "flex", alignItems: "center", justifyContent: "center", zIndex: 60
-        }}>
-          <div style={{ width: 420, background: "#fff", borderRadius: 10, padding: 16 }}>
-            <h3 style={{ marginBottom: 8 }}>{editMode ? "유저 수정" : "유저 추가"}</h3>
-            <div style={{ display: "grid", gap: 8 }}>
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "rgba(0,0,0,0.4)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 60,
+          }}
+        >
+          <div
+            style={{
+              width: 420,
+              background: "#fff",
+              borderRadius: 10,
+              padding: 16,
+            }}
+          >
+            <h3 style={{ marginBottom: 8 }}>
+              {editMode ? "유저 수정" : "유저 추가"}
+            </h3>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
               <input
                 placeholder="이름"
                 value={tempPlayer.name}
-                onChange={e => setTempPlayer({ ...tempPlayer, name: e.target.value })}
-                style={{ padding: 8, borderRadius: 8, border: "1px solid #e5e7eb" }}
+                onChange={(e) =>
+                  setTempPlayer({ ...tempPlayer, name: e.target.value })
+                }
+                style={{
+                  padding: "8px 10px",
+                  borderRadius: 6,
+                  border: "1px solid #ccc",
+                }}
               />
               <input
-                placeholder="보유금액"
-                value={tempPlayer.money === 0 ? "" : String(tempPlayer.money)}
-                onChange={e => setTempPlayer({ ...tempPlayer, money: parseNum(e.target.value) })}
-                style={{ padding: 8, borderRadius: 8, border: "1px solid #e5e7eb" }}
+                type="number"
+                placeholder="보유 금액"
+                value={numberInputValue(tempPlayer.money)}
+                onChange={(e) =>
+                  setTempPlayer({
+                    ...tempPlayer,
+                    money: parseNum(e.target.value),
+                  })
+                }
+                style={{
+                  padding: "8px 10px",
+                  borderRadius: 6,
+                  border: "1px solid #ccc",
+                }}
               />
-
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 8 }}>
-                {HOTEL_LIST.map(h => (
-                  <div key={h}>
-                    <div style={{ fontSize: 12, marginBottom: 4 }}>{h}</div>
-                    <input
-                      value={tempPlayer.stocks[h] === 0 ? "" : String(tempPlayer.stocks[h])}
-                      onChange={e => setTempPlayer({
-                        ...tempPlayer,
-                        stocks: { ...tempPlayer.stocks, [h]: parseNum(e.target.value) }
-                      })}
-                      style={{ width: "100%", padding: 8, borderRadius: 8, border: "1px solid #e5e7eb" }}
-                    />
-                  </div>
-                ))}
+              <div>
+                <div style={{ fontSize: 13, marginBottom: 4 }}>보유 주식</div>
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns:
+                      "repeat(auto-fit, minmax(100px, 1fr))",
+                    gap: 6,
+                  }}
+                >
+                  {HOTEL_LIST.map((hotel) => (
+                    <div key={hotel}>
+                      <label
+                        style={{
+                          fontSize: 12,
+                          display: "block",
+                          marginBottom: 2,
+                        }}
+                      >
+                        {hotel}
+                      </label>
+                      <input
+                        type="number"
+                        value={numberInputValue(tempPlayer.stocks[hotel])}
+                        onChange={(e) =>
+                          setTempPlayer({
+                            ...tempPlayer,
+                            stocks: {
+                              ...tempPlayer.stocks,
+                              [hotel]: parseNum(e.target.value),
+                            },
+                          })
+                        }
+                        style={{
+                          width: "100%",
+                          padding: "6px 8px",
+                          borderRadius: 6,
+                          border: "1px solid #ccc",
+                        }}
+                      />
+                    </div>
+                  ))}
+                </div>
               </div>
 
-              <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, marginTop: 8 }}>
-                <button onClick={() => setShowModal(false)} style={{ padding: "8px 12px", borderRadius: 8, background: "#e5e7eb" }}>취소</button>
-                <button onClick={handleSavePlayer} style={{ padding: "8px 12px", borderRadius: 8, background: "#2563eb", color: "#fff" }}>저장</button>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  gap: 8,
+                  marginTop: 10,
+                }}
+              >
+                <button
+                  onClick={handleSavePlayer}
+                  style={{
+                    background: "#2563eb",
+                    color: "#fff",
+                    padding: "8px 12px",
+                    borderRadius: 8,
+                  }}
+                >
+                  저장
+                </button>
+                <button
+                  onClick={() => setShowModal(false)}
+                  style={{
+                    background: "#9ca3af",
+                    color: "#fff",
+                    padding: "8px 12px",
+                    borderRadius: 8,
+                  }}
+                >
+                  취소
+                </button>
               </div>
             </div>
           </div>
         </div>
       )}
 
-      <footer style={{ marginTop: 20, color: "#6b7280", fontSize: 13 }}>
-        <div>바이브 코딩으로 개발됨</div>
-        <div>React + TypeScript + Vite 기반</div>
-        <div style={{ marginTop: 6, fontWeight: 600 }}>v0.6</div>
+      {/* 푸터 */}
+      <footer
+        style={{
+          textAlign: "center",
+          borderTop: "1px solid #ddd",
+          paddingTop: 10,
+          color: "#6b7280",
+          fontSize: 13,
+          lineHeight: 1.6,
+          marginTop: 20,
+        }}
+      >
+        © 2025 어콰이어 계산기
+        <br />
+        바이브 코딩으로 개발됨 React + TypeScript + Vite + Tailwind 기반
+        <br />
+        v0.7
       </footer>
     </div>
   );
