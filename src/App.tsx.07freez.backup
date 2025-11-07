@@ -483,45 +483,34 @@ export default function App() {
         )}
       </section>
 
-      {/* 파이 차트 (유저 자산 비율) */}
+      {/* 파이차트 */}
       {sortedPlayers.length > 0 && (
-        <section
-          style={{
-            background: "#fff",
-            padding: 16,
-            borderRadius: 10,
-            boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
-            border: "1px solid #e5e7eb",
-            height: 360,
-            marginBottom: 60,
-          }}
-        >
-          <h2 style={{ fontSize: 16, marginBottom: 12, fontWeight: 600, textAlign: "center" }}>
-            유저별 자산 비율
-          </h2>
+        <section style={{ height: 320, marginBottom: 20 }}>
+          <h2 style={{ fontSize: 16, marginBottom: 8 }}>유저별 자산 비율</h2>
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie
-                data={sortedPlayers.map(p => ({
+                data={sortedPlayers.map((p) => ({
                   name: p.name,
                   value: calcTotalAsset(p, blockCounts),
-                  color: p.color
+                  color: p.color,
                 }))}
                 dataKey="value"
                 nameKey="name"
                 cx="50%"
                 cy="50%"
-                outerRadius={100}
-                label={({ name, percent }: any) =>
-                  `${name} ${(percent * 100).toFixed(0)}%`
-                }
+                outerRadius={90}
+                label={(props: any) => {
+                  const { name, percent } = props;
+                  return `${name ?? ""} ${(percent ? (percent * 100).toFixed(0) : 0)}%`;
+                }}
               >
                 {sortedPlayers.map((p, i) => (
                   <Cell key={i} fill={p.color} />
                 ))}
               </Pie>
-              <Tooltip formatter={(value: any) => `${Number(value).toLocaleString()}원`} />
-              {/* <Legend /> */}
+              <Tooltip />
+              <Legend />
             </PieChart>
           </ResponsiveContainer>
         </section>
